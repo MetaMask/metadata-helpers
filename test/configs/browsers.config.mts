@@ -3,14 +3,12 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    setupFiles: ["./test/configs/browserSetup.ts"],
     reporters: "verbose",
     browser: {
       screenshotFailures: false,
       headless: true,
       provider: playwright(),
       enabled: true,
-      testerHtmlPath: "./test/test.html",
       instances: [
         { name: "Chrome", browser: "chromium" },
         { name: "Firefox", browser: "firefox" },

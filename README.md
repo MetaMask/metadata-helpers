@@ -64,4 +64,4 @@ or
 ## Requirements
 
 - This package requires a peer dependency of `@babel/runtime`
-- Node 18+
+- Node 22+
