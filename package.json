@@ -1,6 +1,6 @@
 {
   "name": "@toruslabs/metadata-helpers",
-  "version": "7.0.2",
+  "version": "8.0.0",
   "description": "Helper methods for metadata",
   "main": "dist/lib.cjs/index.js",
   "module": "dist/lib.esm/index.js",
