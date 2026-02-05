@@ -23,7 +23,6 @@ This module is distributed in 3 formats
 
 - `ems` build `dist/metadataHelpers.esm.js` in es5 format
 - `commonjs` build `dist/metadataHelpers.cjs.js` in es5 format with problematic packages bundled (benfits non-webpack users)
-- `umd` build `dist/metadataHelpers.umd.min.js` in es5 format without polyfilling corejs minified
 
 By default, the appropriate format is used for your specified usecase
 You can use a different format (if you know what you're doing) by referencing the correct file
@@ -65,4 +64,4 @@ or
 ## Requirements
 
 - This package requires a peer dependency of `@babel/runtime`
-- Node 18+
+- Node 22+

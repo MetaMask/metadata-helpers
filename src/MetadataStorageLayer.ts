@@ -1,7 +1,7 @@
 import { post, setAPIKey, setEmbedHost } from "@toruslabs/http-helpers";
 import stringify from "json-stable-stringify";
 
-import { ec, keccak256 } from "./utils";
+import { bytesToBase64, getPublicKeyCoords, hexToBytes, keccak256, secp256k1, toEthereumSignature, utf8ToBytes } from "./utils";
 
 export type PubKeyParams = {
   pub_key_X: string;
@@ -35,28 +35,27 @@ export class MetadataStorageLayer {
   }
 
   generateMetadataParams(message: string, privateKeyHex: string): MetadataParams {
-    const key = ec.keyFromPrivate(privateKeyHex, "hex");
+    const privKeyBytes = hexToBytes(privateKeyHex.padStart(64, "0"));
+    const { x, y } = getPublicKeyCoords(privateKeyHex);
     const setData = {
       data: message,
       timestamp: Math.floor(this.serverTimeOffset + Date.now() / 1000).toString(16),
     };
-    const sig = key.sign(keccak256(Buffer.from(stringify(setData), "utf8")));
+    const msgHash = keccak256(utf8ToBytes(stringify(setData)));
+    const sigBytes = secp256k1.sign(msgHash, privKeyBytes, { prehash: false, format: "recovered" });
     return {
-      pub_key_X: key.getPublic().getX().toString(16, 64),
-      pub_key_Y: key.getPublic().getY().toString(16, 64),
+      pub_key_X: x,
+      pub_key_Y: y,
       set_data: setData,
-      signature: Buffer.from(
-        sig.r.toString(16, 64) + sig.s.toString(16, 64) + (sig.recoveryParam?.toString(16).padStart(2, "0").slice(-2) ?? "00"),
-        "hex"
-      ).toString("base64"),
+      signature: bytesToBase64(toEthereumSignature(sigBytes)),
     };
   }
 
   generatePubKeyParams(privateKeyHex: string): PubKeyParams {
-    const key = ec.keyFromPrivate(privateKeyHex, "hex");
+    const { x, y } = getPublicKeyCoords(privateKeyHex);
     return {
-      pub_key_X: key.getPublic().getX().toString(16, 64),
-      pub_key_Y: key.getPublic().getY().toString(16, 64),
+      pub_key_X: x,
+      pub_key_Y: y,
     };
   }
 

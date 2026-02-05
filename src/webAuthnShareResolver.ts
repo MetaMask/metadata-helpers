@@ -1,7 +1,7 @@
 import { decrypt, Ecies, encrypt, getPublic } from "@toruslabs/eccrypto";
 
 import { MetadataStorageLayer, PubKeyParams } from "./MetadataStorageLayer";
-import { ec } from "./utils";
+import { bytesToHex, bytesToUtf8, coordsToPublicKey, getPublicKeyCoords, hexToBytes, utf8ToBytes } from "./utils";
 
 const WEBAUTHN_TORUS_SHARE = "webauthn_torus_share";
 const WEBAUTHN_DEVICE_SHARE = "webauthn_device_share";
@@ -15,45 +15,42 @@ export type EciesHex = {
 
 export function encParamsHexToBuf(encParamsHex: EciesHex): Ecies {
   return {
-    iv: Buffer.from(encParamsHex.iv, "hex"),
-    ephemPublicKey: Buffer.from(encParamsHex.ephemPublicKey, "hex"),
-    ciphertext: Buffer.from(encParamsHex.ciphertext, "hex"),
-    mac: Buffer.from(encParamsHex.mac, "hex"),
+    iv: hexToBytes(encParamsHex.iv),
+    ephemPublicKey: hexToBytes(encParamsHex.ephemPublicKey),
+    ciphertext: hexToBytes(encParamsHex.ciphertext),
+    mac: hexToBytes(encParamsHex.mac),
   };
 }
 
 export function encParamsBufToHex(encParams: Ecies): EciesHex {
   return {
-    iv: Buffer.from(encParams.iv).toString("hex"),
-    ephemPublicKey: Buffer.from(encParams.ephemPublicKey).toString("hex"),
-    ciphertext: Buffer.from(encParams.ciphertext).toString("hex"),
-    mac: Buffer.from(encParams.mac).toString("hex"),
+    iv: bytesToHex(encParams.iv),
+    ephemPublicKey: bytesToHex(encParams.ephemPublicKey),
+    ciphertext: bytesToHex(encParams.ciphertext),
+    mac: bytesToHex(encParams.mac),
   };
 }
 
 export async function encryptData(privKeyHex: string, d: unknown): Promise<string> {
-  const serializedDec = JSON.stringify(d);
-  const serializedBuf = Buffer.from(serializedDec, "utf-8");
-  const encParams = await encrypt(getPublic(Buffer.from(privKeyHex, "hex")), serializedBuf);
+  const serializedData = utf8ToBytes(JSON.stringify(d));
+  const privKeyBytes = hexToBytes(privKeyHex.padStart(64, "0"));
+  const encParams = await encrypt(getPublic(privKeyBytes), serializedData);
   const encParamsHex = encParamsBufToHex(encParams);
-  const sData = JSON.stringify(encParamsHex);
-  return sData;
+  return JSON.stringify(encParamsHex);
 }
 
 export async function decryptData<T>(privKeyHex: string, d: string): Promise<T> {
   const encParamsHex: EciesHex = JSON.parse(d);
   const encParams = encParamsHexToBuf(encParamsHex);
-  const keyPair = ec.keyFromPrivate(privKeyHex);
-  const serializedBuf = await decrypt(Buffer.from(keyPair.getPrivate().toString("hex", 64), "hex"), encParams);
-  const serializedDec = serializedBuf.toString("utf-8");
-  const data: T = JSON.parse(serializedDec);
+  const privKeyBytes = hexToBytes(privKeyHex.padStart(64, "0"));
+  const serializedBytes = await decrypt(privKeyBytes, encParams);
+  const data: T = JSON.parse(bytesToUtf8(serializedBytes));
   return data;
 }
 
 export async function getAndDecryptData<T>(m: MetadataStorageLayer, privKeyHex: string, namespace: string): Promise<Record<string, T> | null> {
-  const keyPair = ec.keyFromPrivate(privKeyHex, "hex");
-  const pubKey = keyPair.getPublic();
-  const serializedData = await m.getMetadata({ pub_key_X: pubKey.getX().toString(16, 64), pub_key_Y: pubKey.getY().toString(16, 64) }, namespace);
+  const { x, y } = getPublicKeyCoords(privKeyHex);
+  const serializedData = await m.getMetadata({ pub_key_X: x, pub_key_Y: y }, namespace);
   if (!serializedData) {
     return null;
   }
@@ -74,31 +71,23 @@ export async function setTorusShare(
   subspace: string,
   subspaceData: unknown
 ): Promise<void> {
-  const refKeyPair = ec.keyFromPrivate(webAuthnRefHex);
-  const privKey = refKeyPair.getPrivate();
-  const pubKey = ec.keyFromPublic({
-    x: webAuthnPubKey.pub_key_X,
-    y: webAuthnPubKey.pub_key_Y,
-  });
+  const pubKeyBytes = coordsToPublicKey(webAuthnPubKey.pub_key_X, webAuthnPubKey.pub_key_Y);
   const data = await getAndDecryptData(m, webAuthnRefHex, WEBAUTHN_TORUS_SHARE);
   let d: Record<string, unknown> = {};
   if (data) d = data;
-  const serializedSubspaceData = JSON.stringify(subspaceData);
-  const serializedSubspaceDataBuf = Buffer.from(serializedSubspaceData, "utf-8");
-  const encSubspaceData = await encrypt(Buffer.from(pubKey.getPublic("hex"), "hex"), serializedSubspaceDataBuf);
+  const serializedSubspaceData = utf8ToBytes(JSON.stringify(subspaceData));
+  const encSubspaceData = await encrypt(pubKeyBytes, serializedSubspaceData);
   const encSubspaceDataHex = encParamsBufToHex(encSubspaceData);
   d[subspace] = encSubspaceDataHex;
-  await encryptAndSetData(m, privKey.toString("hex", 64), d, WEBAUTHN_TORUS_SHARE);
+  await encryptAndSetData(m, webAuthnRefHex, d, WEBAUTHN_TORUS_SHARE);
 }
 
 export async function setDeviceShare(m: MetadataStorageLayer, webAuthnRefHex: string, subspace: string, subspaceData: unknown): Promise<void> {
-  const keyPair = ec.keyFromPrivate(webAuthnRefHex);
-  const privKey = keyPair.getPrivate();
   const data = await getAndDecryptData(m, webAuthnRefHex, WEBAUTHN_DEVICE_SHARE);
   let d: Record<string, unknown> = {};
   if (data) d = data;
   d[subspace] = subspaceData;
-  await encryptAndSetData(m, privKey.toString("hex", 64), d, WEBAUTHN_DEVICE_SHARE);
+  await encryptAndSetData(m, webAuthnRefHex, d, WEBAUTHN_DEVICE_SHARE);
 }
 
 export async function getTorusShare<T>(m: MetadataStorageLayer, webAuthnKeyHex: string, webAuthnRefHex: string, subspace: string): Promise<T | null> {
@@ -107,11 +96,9 @@ export async function getTorusShare<T>(m: MetadataStorageLayer, webAuthnKeyHex: 
   const encParamsHex = data[subspace];
   if (!encParamsHex) return null;
   const encParams = encParamsHexToBuf(encParamsHex);
-  const keyPair = ec.keyFromPrivate(webAuthnKeyHex);
-  const privKey = keyPair.getPrivate();
-  const serializedSubspaceDataBuf = await decrypt(Buffer.from(privKey.toString("hex", 64), "hex"), encParams);
-  const serializedSubspaceData = serializedSubspaceDataBuf.toString("utf-8");
-  const subspaceData = JSON.parse(serializedSubspaceData);
+  const privKeyBytes = hexToBytes(webAuthnKeyHex.padStart(64, "0"));
+  const serializedBytes = await decrypt(privKeyBytes, encParams);
+  const subspaceData = JSON.parse(bytesToUtf8(serializedBytes));
   return subspaceData;
 }
 
