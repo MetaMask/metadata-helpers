@@ -19,6 +19,11 @@ export function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binString);
 }
 
+export function base64ToBytes(base64: string): Uint8Array {
+  const binString = atob(base64);
+  return Uint8Array.from(binString, (ch) => ch.codePointAt(0)!);
+}
+
 // Convert noble-curves recovered format (v || r || s) to Ethereum format (r || s || v)
 export function toEthereumSignature(recoveredSig: Uint8Array): Uint8Array {
   const ethSig = new Uint8Array(65);
