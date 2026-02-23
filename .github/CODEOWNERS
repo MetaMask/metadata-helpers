@@ -16,11 +16,11 @@
 # and responsibility to publish libraries under the MetaMask name.
 
 # Fallback for all other files
-*                               @MetaMask/Web3auth-Admins
+*                               @MetaMask/Web3Auth-Admins
 
 # Product code
-src/                            @MetaMask/Web3auth-Product
-test/                           @MetaMask/Web3auth-Product
+src/                            @MetaMask/Web3Auth-Product
+test/                           @MetaMask/Web3Auth-Product
 
 # Most restrictive — last match wins
-.github/CODEOWNERS              @MetaMask/Web3auth-Admins
+.github/CODEOWNERS              @MetaMask/Web3Auth-Admins
