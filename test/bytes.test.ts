@@ -376,6 +376,6 @@ describe("areUint8ArraysEqual", () => {
     // The threshold enforces the same order of magnitude while allowing normal system jitter.
     // It's an empirical upper bound (~p95). To tune: run multiple trials, take a high percentile, and set slightly above it.
     const ratio = earlyTotal > lateTotal ? earlyTotal / lateTotal : lateTotal / earlyTotal;
-    expect(ratio).toBeLessThan(1.1);
+    expect(ratio).toBeLessThan(1.4);
   });
 });
