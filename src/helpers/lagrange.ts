@@ -4,6 +4,7 @@ import { bytesToNumberBE, concatBytes, hexToBytes, numberToBytesBE } from "@nobl
 
 import type { Curve, KeyType } from "./crypto";
 import { generatePrivateKey, getSecp256k1 } from "./crypto";
+import { hexToBigInt } from "./number";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -21,12 +22,6 @@ export type ShareMap = { [x: string]: Share };
 
 function bigintToHex(val: bigint, padLength = 64): string {
   return val.toString(16).padStart(padLength, "0");
-}
-
-function hexToBigIntLocal(val: string): bigint {
-  const cleaned = val.replace(/^0x/, "");
-  if (!cleaned) return 0n;
-  return BigInt(`0x${cleaned}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -77,7 +72,7 @@ export class Share {
 
   static fromJSON(value: StringifiedType): Share {
     const { share, shareIndex } = value as ShareJSON;
-    return new Share(hexToBigIntLocal(shareIndex), hexToBigIntLocal(share));
+    return new Share(hexToBigInt(shareIndex), hexToBigInt(share));
   }
 
   toJSON(): ShareJSON {
