@@ -5,7 +5,7 @@ import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { bytesToHex, bytesToNumberBE, bytesToNumberLE, numberToBytesBE } from "@noble/curves/utils.js";
 import { sha512 } from "@noble/hashes/sha2.js";
 import { keccak_256 } from "@noble/hashes/sha3.js";
-import { bs58 } from "@toruslabs/bs58";
+import { base58 } from "@scure/base";
 
 import { add0x, remove0x } from "./hex";
 import type { HexOutputOptions } from "./number";
@@ -46,13 +46,13 @@ export function generatePrivateKey(ecCurveOrKeyType: Curve | KeyType): Uint8Arra
 }
 
 /**
- * Returns keccak256 hash as hex string. By default 0x-prefixed.
+ * Returns keccak256 hash as hex string (torus.js–compatible name). By default 0x-prefixed.
  * Use keccak256Bytes when you need raw bytes.
  *
  * @param a - Input bytes.
  * @param options - Optional. Set `{ prefixed: false }` to omit "0x" prefix.
  */
-export function keccak256HexString(a: Uint8Array, options?: HexOutputOptions): string {
+export function keccak256(a: Uint8Array, options?: HexOutputOptions): string {
   const hash = bytesToHex(keccak_256(a));
   return options?.prefixed === false ? hash : `0x${hash}`;
 }
@@ -125,11 +125,11 @@ export function getSecp256k1PublicKeyFromAffinePoint(point: AffinePoint): Uint8A
 function generateAddressFromPoint(keyType: KeyType, point: AffinePoint): string {
   if (keyType === "secp256k1") {
     const publicKey = getSecp256k1PublicKeyFromAffinePoint(point);
-    const evmAddressLower = `0x${keccak256HexString(publicKey).slice(64 - 38)}`;
+    const evmAddressLower = `0x${keccak256(publicKey).slice(64 - 38)}`;
     return toChecksumAddress(evmAddressLower);
   } else if (keyType === "ed25519") {
     const publicKey = encodeEd25519Point(point);
-    return bs58.encode(publicKey);
+    return base58.encode(publicKey);
   }
   throw new Error(`Invalid keyType: ${keyType}`);
 }

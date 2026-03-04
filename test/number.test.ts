@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  bigIntToHexPaddedString,
+  bigintToHex,
   bigIntToHexPrefixedString as bigIntToHex,
   hexToBigInt,
   hexToNumber,
@@ -83,13 +83,13 @@ describe("prefixed option", () => {
     expect(bigIntToHex(16n, { prefixed: false })).toBe("10");
   });
 
-  it("bigIntToHexPaddedString: defaults to no prefix", () => {
-    const result = bigIntToHexPaddedString(255n, 4);
+  it("bigintToHex: defaults to no prefix", () => {
+    const result = bigintToHex(255n, 4);
     expect(result).toBe("00ff");
   });
 
-  it("bigIntToHexPaddedString: { prefixed: true } adds 0x", () => {
-    expect(bigIntToHexPaddedString(255n, 4, { prefixed: true })).toBe("0x00ff");
+  it("bigintToHex: { prefixed: true } adds 0x", () => {
+    expect(bigintToHex(255n, 4, { prefixed: true })).toBe("0x00ff");
   });
 });
 

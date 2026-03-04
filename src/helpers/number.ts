@@ -57,23 +57,26 @@ export const bigIntToHexPrefixedString = (value: bigint, options?: HexOutputOpti
 };
 
 /**
- * Convert a `bigint` to a zero-padded hexadecimal string.
- * By default returns without "0x" prefix (backward compatible).
+ * Convert a `bigint` to a zero-padded hexadecimal string (torus.js–compatible name).
+ * By default returns without "0x" prefix.
  *
  * @example
  * ```typescript
- * bigIntToHexPaddedString(255n); // '00000...00ff' (64 chars, no prefix)
- * bigIntToHexPaddedString(255n, 4, { prefixed: true }); // '0x00ff'
+ * bigintToHex(255n); // '00000...00ff' (64 chars, no prefix)
+ * bigintToHex(255n, 4, { prefixed: true }); // '0x00ff'
  * ```
  * @param value - The bigint to convert.
  * @param length - Pad to this many hex characters (default 64).
  * @param options - Optional. Set `{ prefixed: true }` to add "0x" prefix.
  * @returns The padded hexadecimal string.
  */
-export const bigIntToHexPaddedString = (value: bigint, length: number = 64, options?: HexOutputOptions): string => {
+export const bigintToHex = (value: bigint, length: number = 64, options?: HexOutputOptions): string => {
   const hex = value.toString(16).padStart(length, "0");
   return options?.prefixed ? add0x(hex) : hex;
 };
+
+/** @deprecated Use bigintToHex. Kept for backward compatibility. */
+export const bigIntToHexPaddedString = bigintToHex;
 
 /**
  * Convert a hexadecimal string to a number. This verifies that the string is a

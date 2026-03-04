@@ -16,8 +16,8 @@ import {
   getSecp256k1,
   getSecp256k1PublicKeyFromAffinePoint,
   getSecpKeyFromEd25519,
+  keccak256,
   keccak256Bytes,
-  keccak256HexString,
 } from "../src/helpers/crypto";
 
 describe("getSecp256k1 / getEd25519 / getKeyCurve", () => {
@@ -83,17 +83,17 @@ describe("generatePrivateKey", () => {
   });
 });
 
-describe("keccak256HexString / keccak256Bytes", () => {
+describe("keccak256 / keccak256Bytes", () => {
   const input = new TextEncoder().encode("hello");
   const expectedHex = "0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8";
   const expectedRawHex = "1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8";
 
   it("returns 0x-prefixed hex string by default", () => {
-    expect(keccak256HexString(input)).toBe(expectedHex);
+    expect(keccak256(input)).toBe(expectedHex);
   });
 
   it("returns raw hex with { prefixed: false }", () => {
-    expect(keccak256HexString(input, { prefixed: false })).toBe(expectedRawHex);
+    expect(keccak256(input, { prefixed: false })).toBe(expectedRawHex);
   });
 
   it("returns raw bytes", () => {

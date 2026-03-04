@@ -15,7 +15,7 @@ export { nobleConcatBytes, nobleHexToBytes };
 
 export { secp256k1 };
 export { sha512 } from "@noble/hashes/sha2.js";
-export { keccak_256 as keccak256 } from "@noble/hashes/sha3.js";
+export { keccak_256 } from "@noble/hashes/sha3.js";
 
 export function utf8ToBytes(str: string): Uint8Array {
   return new TextEncoder().encode(str);
