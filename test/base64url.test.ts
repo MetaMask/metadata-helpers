@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { bytesToBase64 } from "../src";
 import { decodeBase64Url, encodeBase64Url, fromBase64, toBase64, toBufferLike } from "../src/helpers/base64url";
-import { utf8ToBytes } from "../src/helpers/bytes";
+import { base64ToBytes, bytesToUtf8, utf8ToBytes } from "../src/helpers/bytes";
 
 const testBytes = new Uint8Array([0xfb, 0xef, 0xff, 0xfe, 0xfd]);
 
@@ -62,5 +62,19 @@ describe("base64url", () => {
     const encoded = "bGFkaWVzIGFuZCBnZW50bGVtZW4sIHdlIGFyZSBmbG9hdGluZyBpbiBzcGFjZQ";
     expect(encodeBase64Url(original)).toBe(encoded);
     expect(decodeBase64Url(encoded)).toBe(original);
+  });
+
+  it("round-trips through base64ToBytes", () => {
+    const original = new Uint8Array([0xfb, 0xef, 0xff, 0xfe, 0xfd]);
+    const b64url = encodeBase64Url(original);
+    const decoded = base64ToBytes(toBase64(b64url));
+    expect(decoded).toStrictEqual(original);
+  });
+
+  it("base64ToBytes accepts base64url strings directly", () => {
+    const original = "Hello, World! 🌍";
+    const b64url = encodeBase64Url(original);
+    const decoded = bytesToUtf8(base64ToBytes(b64url));
+    expect(decoded).toBe(original);
   });
 });
