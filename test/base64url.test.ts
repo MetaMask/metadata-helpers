@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { decodeBase64Url, encodeBase64Url, fromBase64, toBase64, toBufferLike } from "../src/base64url";
-import { bytesToBase64, utf8ToBytes } from "../src/utils";
+import { bytesToBase64 } from "../src";
+import { decodeBase64Url, encodeBase64Url, fromBase64, toBase64, toBufferLike } from "../src/helpers/base64url";
+import { utf8ToBytes } from "../src/helpers/utils";
 
 const testBytes = new Uint8Array([0xfb, 0xef, 0xff, 0xfe, 0xfd]);
 
