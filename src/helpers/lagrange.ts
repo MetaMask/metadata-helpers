@@ -21,7 +21,8 @@ export type ShareMap = { [x: string]: Share };
 // ---------------------------------------------------------------------------
 
 function bigintToHex(val: bigint, padLength = 64): string {
-  return val.toString(16).padStart(padLength, "0");
+  const hex = val.toString(16).padStart(padLength, "0");
+  return hex.length % 2 !== 0 ? "0" + hex : hex;
 }
 
 // ---------------------------------------------------------------------------

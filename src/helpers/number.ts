@@ -71,7 +71,10 @@ export const bigIntToHexPrefixedString = (value: bigint, options?: HexOutputOpti
  * @returns The padded hexadecimal string.
  */
 export const bigintToHex = (value: bigint, length: number = 64, options?: HexOutputOptions): string => {
-  const hex = value.toString(16).padStart(length, "0");
+  let hex = value.toString(16).padStart(length, "0");
+  if (hex.length % 2 !== 0) {
+    hex = "0" + hex;
+  }
   return options?.prefixed ? add0x(hex) : hex;
 };
 
