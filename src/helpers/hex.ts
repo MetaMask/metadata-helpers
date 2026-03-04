@@ -1,7 +1,7 @@
 import { keccak_256 as keccak256 } from "@noble/hashes/sha3.js";
 
 import { assert } from "./assert";
-import { utf8ToBytes } from "./utils";
+import { utf8ToBytes } from "./bytes";
 
 export type Hex = `0x${string}`;
 

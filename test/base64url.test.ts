@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { bytesToBase64 } from "../src";
 import { decodeBase64Url, encodeBase64Url, fromBase64, toBase64, toBufferLike } from "../src/helpers/base64url";
-import { utf8ToBytes } from "../src/helpers/utils";
+import { utf8ToBytes } from "../src/helpers/bytes";
 
 const testBytes = new Uint8Array([0xfb, 0xef, 0xff, 0xfe, 0xfd]);
 

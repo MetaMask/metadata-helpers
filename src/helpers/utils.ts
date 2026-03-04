@@ -4,14 +4,6 @@ export { bytesToHex, numberToHexUnpadded } from "@noble/curves/utils.js";
 export { secp256k1 };
 export { keccak_256 as keccak256 } from "@noble/hashes/sha3.js";
 
-export function utf8ToBytes(str: string): Uint8Array {
-  return new TextEncoder().encode(str);
-}
-
-export function bytesToUtf8(bytes: Uint8Array): string {
-  return new TextDecoder().decode(bytes);
-}
-
 // Convert noble-curves recovered format (v || r || s) to Ethereum format (r || s || v)
 export function toEthereumSignature(recoveredSig: Uint8Array): Uint8Array {
   const ethSig = new Uint8Array(65);

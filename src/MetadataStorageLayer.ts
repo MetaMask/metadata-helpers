@@ -1,11 +1,10 @@
 import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { keccak_256 } from "@noble/hashes/sha3.js";
-import { bytesToHex } from "@noble/hashes/utils.js";
 import { post, setAPIKey, setEmbedHost } from "@toruslabs/http-helpers";
 import stringify from "json-stable-stringify";
 
-import { bytesToBase64 } from "./helpers/bytes";
-import { getPublicKeyCoords, toEthereumSignature, utf8ToBytes } from "./helpers/utils";
+import { bytesToBase64, utf8ToBytes } from "./helpers/bytes";
+import { bytesToHex, getPublicKeyCoords, toEthereumSignature } from "./helpers/utils";
 
 export type PubKeyParams = {
   pub_key_X: Uint8Array;
