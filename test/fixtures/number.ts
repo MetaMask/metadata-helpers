@@ -2,12 +2,12 @@ export const NUMBER_VALUES = [
   {
     number: 0,
     bigint: BigInt(0),
-    hexadecimal: "0x0",
+    hexadecimal: "0x00",
   },
   {
     number: 1,
     bigint: BigInt(1),
-    hexadecimal: "0x1",
+    hexadecimal: "0x01",
   },
   {
     number: 16,
@@ -22,7 +22,7 @@ export const NUMBER_VALUES = [
   {
     number: 256,
     bigint: BigInt(256),
-    hexadecimal: "0x100",
+    hexadecimal: "0x0100",
   },
   {
     number: 65535,
@@ -32,7 +32,7 @@ export const NUMBER_VALUES = [
   {
     number: 65536,
     bigint: BigInt(65536),
-    hexadecimal: "0x10000",
+    hexadecimal: "0x010000",
   },
   {
     number: 4294967295,
@@ -42,7 +42,7 @@ export const NUMBER_VALUES = [
   {
     number: 4294967296,
     bigint: BigInt(4294967296),
-    hexadecimal: "0x100000000",
+    hexadecimal: "0x0100000000",
   },
   {
     number: 9007199254740991,

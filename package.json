@@ -12,7 +12,7 @@
     "start": "torus-scripts start",
     "build": "torus-scripts build",
     "release": "torus-scripts release",
-    "lint:ts": "torus-scripts lint",
+    "lint": "torus-scripts lint",
     "prepack": "npm run build",
     "test": "npm run test:node && npm run test:browsers",
     "test:node": "vitest run --config test/configs/node.config.mts --coverage",

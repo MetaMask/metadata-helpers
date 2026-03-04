@@ -1,4 +1,4 @@
-import { keccak_256 as keccak256 } from "@noble/hashes/sha3.js";
+import { keccak_256 } from "@noble/hashes/sha3.js";
 
 import { assert } from "./assert";
 
@@ -86,7 +86,7 @@ export function getChecksumAddress(hexAddress: Hex): Hex {
   assert(isHexChecksumAddress(hexAddress), "Invalid hex address.");
   const address = remove0x(hexAddress).toLowerCase();
 
-  const hashBytes = keccak256(new TextEncoder().encode(address));
+  const hashBytes = keccak_256(new TextEncoder().encode(address));
   const { length } = address;
   const result = new Array(length); // Pre-allocate array
 

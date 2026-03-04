@@ -1,10 +1,13 @@
+import { invert, mod } from "@noble/curves/abstract/modular.js";
 import { secp256k1 } from "@noble/curves/secp256k1.js";
-export { bytesToHex, numberToHexUnpadded } from "@noble/curves/utils.js";
+import { bytesToHex, bytesToNumberBE, bytesToNumberLE, numberToBytesBE, numberToHexUnpadded } from "@noble/curves/utils.js";
+
+export { bytesToHex, bytesToNumberBE, bytesToNumberLE, invert, mod, numberToBytesBE, numberToHexUnpadded };
 
 export { secp256k1 };
-export { keccak_256 as keccak256 } from "@noble/hashes/sha3.js";
+export { sha512 } from "@noble/hashes/sha2.js";
+export { keccak_256 } from "@noble/hashes/sha3.js";
 
-// Convert noble-curves recovered format (v || r || s) to Ethereum format (r || s || v)
 export function toEthereumSignature(recoveredSig: Uint8Array): Uint8Array {
   const ethSig = new Uint8Array(65);
   ethSig.set(recoveredSig.slice(1, 65), 0); // r + s
