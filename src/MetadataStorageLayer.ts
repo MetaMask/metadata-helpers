@@ -1,11 +1,15 @@
+import { secp256k1 } from "@noble/curves/secp256k1.js";
+import { keccak_256 } from "@noble/hashes/sha3.js";
+import { bytesToHex } from "@noble/hashes/utils.js";
 import { post, setAPIKey, setEmbedHost } from "@toruslabs/http-helpers";
 import stringify from "json-stable-stringify";
 
-import { bytesToBase64, getPublicKeyCoords, hexToBytes, keccak256, secp256k1, toEthereumSignature, utf8ToBytes } from "./utils";
+import { bytesToBase64 } from "./helpers/bytes";
+import { getPublicKeyCoords, toEthereumSignature, utf8ToBytes } from "./helpers/utils";
 
 export type PubKeyParams = {
-  pub_key_X: string;
-  pub_key_Y: string;
+  pub_key_X: Uint8Array;
+  pub_key_Y: Uint8Array;
 };
 
 export type MetadataParams = PubKeyParams & {
@@ -34,15 +38,14 @@ export class MetadataStorageLayer {
     setEmbedHost(embedHost);
   }
 
-  generateMetadataParams(message: string, privateKeyHex: string): MetadataParams {
-    const privKeyBytes = hexToBytes(privateKeyHex.padStart(64, "0"));
-    const { x, y } = getPublicKeyCoords(privateKeyHex);
+  generateMetadataParams(message: string, privateKeyBytes: Uint8Array): MetadataParams {
+    const { x, y } = getPublicKeyCoords(privateKeyBytes);
     const setData = {
       data: message,
       timestamp: Math.floor(this.serverTimeOffset + Date.now() / 1000).toString(16),
     };
-    const msgHash = keccak256(utf8ToBytes(stringify(setData)));
-    const sigBytes = secp256k1.sign(msgHash, privKeyBytes, { prehash: false, format: "recovered" });
+    const msgHash = keccak_256(utf8ToBytes(stringify(setData)));
+    const sigBytes = secp256k1.sign(msgHash, privateKeyBytes, { prehash: false, format: "recovered", lowS: false });
     return {
       pub_key_X: x,
       pub_key_Y: y,
@@ -51,8 +54,8 @@ export class MetadataStorageLayer {
     };
   }
 
-  generatePubKeyParams(privateKeyHex: string): PubKeyParams {
-    const { x, y } = getPublicKeyCoords(privateKeyHex);
+  generatePubKeyParams(privateKeyBytes: Uint8Array): PubKeyParams {
+    const { x, y } = getPublicKeyCoords(privateKeyBytes);
     return {
       pub_key_X: x,
       pub_key_Y: y,
@@ -60,13 +63,21 @@ export class MetadataStorageLayer {
   }
 
   async setMetadata(data: MetadataParams, namespace: string | null, options?: RequestInit): Promise<string> {
-    const params = namespace !== null ? { ...data, namespace } : data;
+    const pubKeyHex = {
+      pub_key_X: bytesToHex(data.pub_key_X),
+      pub_key_Y: bytesToHex(data.pub_key_Y),
+    };
+    const params = namespace !== null ? { ...data, ...pubKeyHex, namespace } : { ...data, ...pubKeyHex };
     const metadataResponse = await post<{ message: string }>(`${this.metadataHost}/set`, params, options, { useAPIKey: true });
     return metadataResponse.message;
   }
 
   async getMetadata(pubKey: PubKeyParams, namespace: string | null, options?: RequestInit): Promise<string> {
-    const params = namespace !== null ? { ...pubKey, namespace } : pubKey;
+    const pubKeyHex = {
+      pub_key_X: bytesToHex(pubKey.pub_key_X),
+      pub_key_Y: bytesToHex(pubKey.pub_key_Y),
+    };
+    const params = namespace !== null ? { ...pubKeyHex, namespace } : pubKeyHex;
     const metadataResponse = await post<{ message: string }>(`${this.metadataHost}/get`, params, options, { useAPIKey: true });
     return metadataResponse.message;
   }

@@ -1,4 +1,5 @@
-import { base64ToBytes, bytesToBase64, bytesToUtf8, utf8ToBytes } from "./utils";
+import { base64ToBytes, bytesToBase64 } from "./bytes";
+import { bytesToUtf8, utf8ToBytes } from "./utils";
 
 /**
  * Pad a string to a multiple of segment length (4 for base64url).
