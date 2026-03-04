@@ -10,13 +10,13 @@ import {
   bytesToHexPrefixedString as bytesToHex,
   bytesToNumber,
   bytesToSignedBigInt,
-  bytesToString,
+  bytesToUtf8,
   concatBytes,
   hexToBytes,
   isBytes,
   numberToBytes,
   signedBigIntToBytes,
-  stringToBytes,
+  utf8ToBytes,
   valueToBytes,
 } from "../src/helpers/bytes";
 import {
@@ -112,14 +112,9 @@ describe("bytesToNumber", () => {
   });
 });
 
-describe("bytesToString", () => {
+describe("bytesToUtf8", () => {
   it.each(UTF_8_BYTES_FIXTURES)("returns a string from a byte array", ({ bytes, string }) => {
-    expect(bytesToString(bytes)).toBe(string);
-  });
-
-  it.each(INVALID_BYTES_FIXTURES)("throws an error for invalid byte arrays", (value) => {
-    // @ts-expect-error Invalid type.
-    expect(() => bytesToString(value)).toThrow("Value must be a Uint8Array.");
+    expect(bytesToUtf8(bytes)).toBe(string);
   });
 });
 
@@ -252,14 +247,9 @@ describe("numberToBytes", () => {
   });
 });
 
-describe("stringToBytes", () => {
+describe("utf8ToBytes", () => {
   it.each(UTF_8_BYTES_FIXTURES)("returns a byte array from a string", ({ bytes, string }) => {
-    expect(stringToBytes(string)).toStrictEqual(bytes);
-  });
-
-  it.each([true, false, null, undefined, 0, 1, [], {}])("throws an error for invalid strings", (value) => {
-    // @ts-expect-error Invalid type.
-    expect(() => stringToBytes(value)).toThrow("Value must be a string.");
+    expect(utf8ToBytes(string)).toStrictEqual(bytes);
   });
 });
 
@@ -270,6 +260,27 @@ describe("base64ToBytes", () => {
 
   it.each(LARGE_BYTES_FIXTURES)("returns a byte array from a large base64 string", ({ bytes, base64 }) => {
     expect(base64ToBytes(base64)).toStrictEqual(bytes);
+  });
+
+  it("decodes base64url strings with url-safe characters", () => {
+    // "+" becomes "-" and "/" becomes "_" in base64url
+    const standardBase64 = "/////w==";
+    const base64url = "_____w";
+    expect(base64ToBytes(base64url)).toStrictEqual(base64ToBytes(standardBase64));
+  });
+
+  it("decodes unpadded base64 strings", () => {
+    // "AQ==" without padding is "AQ"
+    expect(base64ToBytes("AQ")).toStrictEqual(new Uint8Array([1]));
+    // "AQA=" without padding is "AQA"
+    expect(base64ToBytes("AQA")).toStrictEqual(new Uint8Array([1, 0]));
+  });
+
+  it("decodes base64url with both url-safe chars and missing padding", () => {
+    // Standard: "f//tog==" -> base64url: "f__tog"
+    const expected = new Uint8Array([127, 255, 237, 162]);
+    expect(base64ToBytes("f__tog")).toStrictEqual(expected);
+    expect(base64ToBytes("f//tog==")).toStrictEqual(expected);
   });
 });
 

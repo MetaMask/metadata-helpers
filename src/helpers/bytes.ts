@@ -3,7 +3,6 @@ import { base64 } from "@scure/base";
 import { assert } from "./assert";
 import type { Hex } from "./hex";
 import { add0x, assertIsHexString, remove0x } from "./hex";
-
 // '0'.charCodeAt(0) === 48
 const HEX_MINIMUM_NUMBER_CHARACTER = 48;
 
@@ -158,10 +157,18 @@ export function bytesToNumber(bytes: Uint8Array): number {
  * @param bytes - The bytes to convert to a string.
  * @returns The string.
  */
-export function bytesToString(bytes: Uint8Array): string {
-  assertIsBytes(bytes);
-
+export function bytesToUtf8(bytes: Uint8Array): string {
   return new TextDecoder().decode(bytes);
+}
+
+/**
+ * Convert a `string` to a UTF-8 encoded `Uint8Array`.
+ *
+ * @param value - The string to convert to bytes.
+ * @returns The bytes as `Uint8Array`.
+ */
+export function utf8ToBytes(value: string): Uint8Array {
+  return new TextEncoder().encode(value);
 }
 
 /**
@@ -296,18 +303,6 @@ export function numberToBytes(value: number): Uint8Array {
 }
 
 /**
- * Convert a `string` to a UTF-8 encoded `Uint8Array`.
- *
- * @param value - The string to convert to bytes.
- * @returns The bytes as `Uint8Array`.
- */
-export function stringToBytes(value: string): Uint8Array {
-  assert(typeof value === "string", "Value must be a string.");
-
-  return new TextEncoder().encode(value);
-}
-
-/**
  * Convert a base64 encoded string to a `Uint8Array`.
  *
  * @param value - The base64 encoded string to convert to bytes.
@@ -316,7 +311,13 @@ export function stringToBytes(value: string): Uint8Array {
 export function base64ToBytes(value: string): Uint8Array {
   assert(typeof value === "string", "Value must be a string.");
 
-  return base64.decode(value);
+  // Normalize base64url to standard base64 (pad + replace url-safe chars)
+  const segmentLength = 4;
+  const diff = value.length % segmentLength;
+  const padded = diff ? value + "=".repeat(segmentLength - diff) : value;
+  const normalized = padded.replace(/-/g, "+").replace(/_/g, "/");
+
+  return base64.decode(normalized);
 }
 
 /**
@@ -325,7 +326,7 @@ export function base64ToBytes(value: string): Uint8Array {
  *
  * This will attempt to guess the type of the value based on its type and
  * contents. For more control over the conversion, use the more specific
- * conversion functions, such as {@link hexToBytes} or {@link stringToBytes}.
+ * conversion functions, such as {@link hexToBytes} or {@link utf8ToBytes}.
  *
  * If the value is a `string`, and it is prefixed with `0x`, it will be
  * interpreted as a hexadecimal string. Otherwise, it will be interpreted as a
@@ -354,7 +355,7 @@ export function valueToBytes(value: Bytes): Uint8Array {
       return hexToBytes(value);
     }
 
-    return stringToBytes(value);
+    return utf8ToBytes(value);
   }
 
   if (isBytes(value)) {
