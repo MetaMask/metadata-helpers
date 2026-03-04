@@ -3,7 +3,8 @@ import { generatePrivate } from "@toruslabs/eccrypto";
 import { describe, expect, it } from "vitest";
 
 import { bytesToHexPrefixedString as bytesToHex } from "../src";
-import { getPublicKeyCoords, utf8ToBytes } from "../src/helpers/utils";
+import { utf8ToBytes } from "../src/helpers/bytes";
+import { getPublicKeyCoords } from "../src/helpers/utils";
 import { MetadataStorageLayer } from "../src/MetadataStorageLayer";
 import { getDeviceShare, getTorusShare, setDeviceShare, setTorusShare } from "../src/webAuthnShareResolver";
 

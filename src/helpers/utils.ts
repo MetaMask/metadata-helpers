@@ -17,14 +17,6 @@ export { secp256k1 };
 export { sha512 } from "@noble/hashes/sha2.js";
 export { keccak_256 } from "@noble/hashes/sha3.js";
 
-export function utf8ToBytes(str: string): Uint8Array {
-  return new TextEncoder().encode(str);
-}
-
-export function bytesToUtf8(bytes: Uint8Array): string {
-  return new TextDecoder().decode(bytes);
-}
-
 export function toEthereumSignature(recoveredSig: Uint8Array): Uint8Array {
   const ethSig = new Uint8Array(65);
   ethSig.set(recoveredSig.slice(1, 65), 0); // r + s

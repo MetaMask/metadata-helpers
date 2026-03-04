@@ -1,7 +1,7 @@
-import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { decrypt, Ecies, encrypt, getPublic } from "@toruslabs/eccrypto";
 
-import { bytesToUtf8, coordsToPublicKey, getPublicKeyCoords, utf8ToBytes } from "./helpers/utils";
+import { bytesToUtf8, hexToBytes, utf8ToBytes } from "./helpers/bytes";
+import { bytesToHex, coordsToPublicKey, getPublicKeyCoords } from "./helpers/utils";
 import { MetadataStorageLayer, PubKeyParams } from "./MetadataStorageLayer";
 
 const WEBAUTHN_TORUS_SHARE = "webauthn_torus_share";
