@@ -1,17 +1,8 @@
 import { invert, mod } from "@noble/curves/abstract/modular.js";
 import { secp256k1 } from "@noble/curves/secp256k1.js";
-import {
-  bytesToHex,
-  bytesToNumberBE,
-  bytesToNumberLE,
-  concatBytes as nobleConcatBytes,
-  hexToBytes as nobleHexToBytes,
-  numberToBytesBE,
-  numberToHexUnpadded,
-} from "@noble/curves/utils.js";
+import { bytesToHex, bytesToNumberBE, bytesToNumberLE, numberToBytesBE, numberToHexUnpadded } from "@noble/curves/utils.js";
 
 export { bytesToHex, bytesToNumberBE, bytesToNumberLE, invert, mod, numberToBytesBE, numberToHexUnpadded };
-export { nobleConcatBytes, nobleHexToBytes };
 
 export { secp256k1 };
 export { sha512 } from "@noble/hashes/sha2.js";

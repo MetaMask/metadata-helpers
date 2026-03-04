@@ -1,10 +1,11 @@
 import { invert, mod } from "@noble/curves/abstract/modular.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
-import { bytesToNumberBE, concatBytes, hexToBytes, numberToBytesBE } from "@noble/curves/utils.js";
+import { bytesToNumberBE, concatBytes, numberToBytesBE } from "@noble/curves/utils.js";
 
+import { hexToBytes } from "./bytes";
 import type { Curve, KeyType } from "./crypto";
 import { generatePrivateKey, getSecp256k1 } from "./crypto";
-import { hexToBigInt } from "./number";
+import { bigintToHex, hexToBigInt } from "./number";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -15,15 +16,6 @@ export type StringifiedType = Record<string, unknown>;
 export type ShareJSON = { share: string; shareIndex: string };
 
 export type ShareMap = { [x: string]: Share };
-
-// ---------------------------------------------------------------------------
-// Helper: bigint ↔ hex (local to avoid circular dependency with number.ts)
-// ---------------------------------------------------------------------------
-
-function bigintToHex(val: bigint, padLength = 64): string {
-  const hex = val.toString(16).padStart(padLength, "0");
-  return hex.length % 2 !== 0 ? "0" + hex : hex;
-}
 
 // ---------------------------------------------------------------------------
 // Point

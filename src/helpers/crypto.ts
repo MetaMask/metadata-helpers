@@ -7,16 +7,10 @@ import { sha512 } from "@noble/hashes/sha2.js";
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import { base58 } from "@scure/base";
 
-import { add0x, remove0x } from "./hex";
-import type { HexOutputOptions } from "./number";
+import { getChecksumAddress, Hex } from "./hex";
+import { bigintToHex, type HexOutputOptions, toBigIntBE } from "./number";
 
 /** Normalize any hex string (with or without 0x) to bigint. Empty → 0n. */
-function hexStringToBigInt(val: string): bigint {
-  const cleaned = remove0x(val);
-  if (!cleaned) return 0n;
-  return BigInt(`0x${cleaned}`);
-}
-
 export type AffinePoint = AffinePointCurve<bigint>;
 export type Curve = typeof secp256k1 | typeof ed25519;
 export type KeyType = "secp256k1" | "ed25519";
@@ -125,8 +119,8 @@ export function getSecp256k1PublicKeyFromAffinePoint(point: AffinePoint): Uint8A
 function generateAddressFromPoint(keyType: KeyType, point: AffinePoint): string {
   if (keyType === "secp256k1") {
     const publicKey = getSecp256k1PublicKeyFromAffinePoint(point);
-    const evmAddressLower = `0x${keccak256(publicKey).slice(64 - 38)}`;
-    return toChecksumAddress(evmAddressLower);
+    const evmAddressLower = `0x${keccak256(publicKey).slice(64 - 38)}` as Hex;
+    return getChecksumAddress(evmAddressLower);
   } else if (keyType === "ed25519") {
     const publicKey = encodeEd25519Point(point);
     return base58.encode(publicKey);
@@ -144,22 +138,6 @@ export function generateAddressFromPubKey(keyType: KeyType, publicKeyX: bigint, 
   return generateAddressFromPoint(keyType, { x: publicKeyX, y: publicKeyY });
 }
 
-function toChecksumAddress(hexAddress: string): string {
-  const address = hexAddress.replace(/^0x/, "").toLowerCase();
-  const hash = bytesToHex(keccak_256(new TextEncoder().encode(address)));
-  let ret = "0x";
-
-  for (let i = 0; i < address.length; i++) {
-    if (parseInt(hash[i]!, 16) >= 8) {
-      ret += address[i]!.toUpperCase();
-    } else {
-      ret += address[i];
-    }
-  }
-
-  return ret;
-}
-
 /**
  * Derive postbox key: privKey - nonce (mod n).
  * Inputs accept hex with or without 0x prefix.
@@ -168,10 +146,9 @@ function toChecksumAddress(hexAddress: string): string {
  * @param options - Optional. Set `{ prefixed: true }` to add "0x" prefix.
  */
 export function getPostboxKeyFrom1OutOf1(ecCurve: Curve, privKey: string, nonce: string, options?: HexOutputOptions): string {
-  const privKeyBI = hexStringToBigInt(privKey);
-  const nonceBI = hexStringToBigInt(nonce);
+  const privKeyBI = toBigIntBE(privKey);
+  const nonceBI = toBigIntBE(nonce);
   const n = ecCurve.Point.CURVE().n;
   const result = mod(privKeyBI - nonceBI, n);
-  const hex = result.toString(16).padStart(64, "0");
-  return options?.prefixed ? add0x(hex) : hex;
+  return bigintToHex(result, 64, options);
 }
