@@ -2,7 +2,7 @@ import { keccak_256 } from "@noble/hashes/sha3.js";
 import { generatePrivate } from "@toruslabs/eccrypto";
 import { describe, expect, it } from "vitest";
 
-import { bytesToHex } from "../src";
+import { bytesToHexPrefixedString as bytesToHex } from "../src";
 import { getPublicKeyCoords, utf8ToBytes } from "../src/helpers/utils";
 import { MetadataStorageLayer } from "../src/MetadataStorageLayer";
 import { getDeviceShare, getTorusShare, setDeviceShare, setTorusShare } from "../src/webAuthnShareResolver";

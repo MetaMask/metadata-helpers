@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { bigIntToHex, hexToBigInt, hexToNumber, numberToHex } from "../src/helpers/number";
+import { bigIntToHexPrefixedString as bigIntToHex, hexToBigInt, hexToNumber, numberToHexPrefixedString as numberToHex } from "../src/helpers/number";
 import { NUMBER_VALUES } from "./fixtures";
 
 describe("numberToHex", () => {

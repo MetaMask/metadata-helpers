@@ -29,7 +29,7 @@ export type Bytes = bigint | number | string | Uint8Array;
  */
 function getPrecomputedHexValuesBuilder(): () => string[] {
   // To avoid issues with tree shaking, we need to use a function to return the
-  // array. This is because the array is only used in the `bytesToHex` function
+  // array. This is because the array is only used in the `bytesToHexPrefixedString` function
   // and if we were to use a global variable, the array might be removed by the
   // tree shaker.
   const lookupTable: string[] = [];
@@ -77,7 +77,7 @@ export function assertIsBytes(value: unknown): asserts value is Uint8Array {
  * @param bytes - The bytes to convert to a hexadecimal string.
  * @returns The hexadecimal string.
  */
-export function bytesToHex(bytes: Uint8Array): Hex {
+export function bytesToHexPrefixedString(bytes: Uint8Array): Hex {
   assertIsBytes(bytes);
 
   if (bytes.length === 0) {
@@ -107,7 +107,7 @@ export function bytesToHex(bytes: Uint8Array): Hex {
 export function bytesToBigInt(bytes: Uint8Array): bigint {
   assertIsBytes(bytes);
 
-  const hexadecimal = bytesToHex(bytes);
+  const hexadecimal = bytesToHexPrefixedString(bytes);
   return BigInt(hexadecimal);
 }
 

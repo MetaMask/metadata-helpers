@@ -1,4 +1,8 @@
 import { secp256k1 } from "@noble/curves/secp256k1.js";
+export { bytesToHex, numberToHexUnpadded } from "@noble/curves/utils.js";
+
+export { secp256k1 };
+export { keccak_256 as keccak256 } from "@noble/hashes/sha3.js";
 
 export function utf8ToBytes(str: string): Uint8Array {
   return new TextEncoder().encode(str);

@@ -7,7 +7,7 @@ import {
   bigIntToBytes,
   bytesToBase64,
   bytesToBigInt,
-  bytesToHex,
+  bytesToHexPrefixedString as bytesToHex,
   bytesToNumber,
   bytesToSignedBigInt,
   bytesToString,

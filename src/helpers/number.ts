@@ -19,7 +19,7 @@ import { add0x, assertIsHexString } from "./hex";
  * @returns The hexadecimal string, with the "0x"-prefix.
  * @throws If the number is not a non-negative safe integer.
  */
-export const numberToHex = (value: number): Hex => {
+export const numberToHexPrefixedString = (value: number): Hex => {
   assert(typeof value === "number", "Value must be a number.");
   assert(value >= 0, "Value must be a non-negative number.");
   assert(Number.isSafeInteger(value), "Value is not a safe integer. Use `bigIntToHex` instead.");
@@ -31,7 +31,7 @@ export const numberToHex = (value: number): Hex => {
  * Convert a `bigint` to a hexadecimal string. This verifies that the `bigint`
  * is a non-negative integer.
  *
- * To convert a number to a hexadecimal string instead, use {@link numberToHex}.
+ * To convert a number to a hexadecimal string instead, use {@link numberToHexPrefixedString}.
  *
  * @example
  * ```typescript
@@ -43,11 +43,15 @@ export const numberToHex = (value: number): Hex => {
  * @returns The hexadecimal string, with the "0x"-prefix.
  * @throws If the `bigint` is not a non-negative integer.
  */
-export const bigIntToHex = (value: bigint): Hex => {
+export const bigIntToHexPrefixedString = (value: bigint): Hex => {
   assert(typeof value === "bigint", "Value must be a bigint.");
   assert(value >= 0, "Value must be a non-negative bigint.");
 
   return add0x(value.toString(16));
+};
+
+export const bigIntToHexPaddedString = (value: bigint, length: number = 64): string => {
+  return value.toString(16).padStart(length, "0");
 };
 
 /**
