@@ -107,3 +107,18 @@ export const hexToBigInt = (value: string): bigint => {
   // The `BigInt` constructor requires the "0x"-prefix to parse a hex string.
   return BigInt(add0x(value));
 };
+
+/**
+ * Convert a hex string (with or without 0x prefix) or bigint to bigint.
+ * Returns 0n for empty strings. Useful when parsing node responses where
+ * values may be missing or empty.
+ *
+ * @param val - The hex string or bigint to convert.
+ * @returns The bigint value.
+ */
+export const toBigIntBE = (val: string | bigint): bigint => {
+  if (typeof val === "bigint") return val;
+  const cleaned = val.replace(/^0x/, "");
+  if (!cleaned) return 0n;
+  return hexToBigInt(cleaned);
+};
