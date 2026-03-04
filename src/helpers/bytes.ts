@@ -311,7 +311,13 @@ export function numberToBytes(value: number): Uint8Array {
 export function base64ToBytes(value: string): Uint8Array {
   assert(typeof value === "string", "Value must be a string.");
 
-  return base64.decode(value);
+  // Normalize base64url to standard base64 (pad + replace url-safe chars)
+  const segmentLength = 4;
+  const diff = value.length % segmentLength;
+  const padded = diff ? value + "=".repeat(segmentLength - diff) : value;
+  const normalized = padded.replace(/-/g, "+").replace(/_/g, "/");
+
+  return base64.decode(normalized);
 }
 
 /**
