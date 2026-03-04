@@ -86,9 +86,14 @@ describe("generatePrivateKey", () => {
 describe("keccak256HexString / keccak256Bytes", () => {
   const input = new TextEncoder().encode("hello");
   const expectedHex = "0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8";
+  const expectedRawHex = "1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8";
 
-  it("returns 0x-prefixed hex string", () => {
+  it("returns 0x-prefixed hex string by default", () => {
     expect(keccak256HexString(input)).toBe(expectedHex);
+  });
+
+  it("returns raw hex with { prefixed: false }", () => {
+    expect(keccak256HexString(input, { prefixed: false })).toBe(expectedRawHex);
   });
 
   it("returns raw bytes", () => {
@@ -186,13 +191,34 @@ describe("getPostboxKeyFrom1OutOf1", () => {
     const nonce = "0000000000000000000000000000000000000000000000000000000000000001";
     const result = getPostboxKeyFrom1OutOf1(secp256k1, privKey, nonce);
     expect(result.length).toBe(64);
-    expect(typeof result).toBe("string");
+    expect(result.startsWith("0x")).toBe(false);
   });
 
-  it("handles hex with 0x prefix", () => {
+  it("auto-detects 0x prefix on inputs", () => {
     const privKey = "0x05";
     const nonce = "0x02";
     const result = getPostboxKeyFrom1OutOf1(secp256k1, privKey, nonce);
     expect(BigInt(`0x${result}`)).toBe(3n);
+  });
+
+  it("handles inputs without 0x prefix", () => {
+    const result = getPostboxKeyFrom1OutOf1(secp256k1, "05", "02");
+    expect(BigInt(`0x${result}`)).toBe(3n);
+  });
+
+  it("handles mixed prefix and no-prefix inputs", () => {
+    const result = getPostboxKeyFrom1OutOf1(secp256k1, "0x05", "02");
+    expect(BigInt(`0x${result}`)).toBe(3n);
+  });
+
+  it("returns 0x-prefixed with { prefixed: true }", () => {
+    const result = getPostboxKeyFrom1OutOf1(secp256k1, "0x05", "0x02", { prefixed: true });
+    expect(result.startsWith("0x")).toBe(true);
+    expect(BigInt(result)).toBe(3n);
+  });
+
+  it("returns raw hex by default", () => {
+    const result = getPostboxKeyFrom1OutOf1(secp256k1, "05", "02");
+    expect(result.startsWith("0x")).toBe(false);
   });
 });

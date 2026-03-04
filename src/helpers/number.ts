@@ -1,30 +1,35 @@
 import { assert } from "./assert";
-import type { Hex } from "./hex";
 import { add0x, assertIsHexString } from "./hex";
+
+export type HexOutputOptions = {
+  /** When true (default), prepend "0x" to the result. Set false for raw hex. */
+  prefixed?: boolean;
+};
 
 /**
  * Convert a number to a hexadecimal string. This verifies that the number is a
  * non-negative safe integer.
  *
  * To convert a `bigint` to a hexadecimal string instead, use
- * {@link bigIntToHex}.
+ * {@link bigIntToHexPrefixedString}.
  *
  * @example
  * ```typescript
- * numberToHex(0); // '0x0'
- * numberToHex(1); // '0x1'
- * numberToHex(16); // '0x10'
+ * numberToHexPrefixedString(16); // '0x10'
+ * numberToHexPrefixedString(16, { prefixed: false }); // '10'
  * ```
  * @param value - The number to convert to a hexadecimal string.
- * @returns The hexadecimal string, with the "0x"-prefix.
+ * @param options - Optional. Set `{ prefixed: false }` to omit the "0x" prefix.
+ * @returns The hexadecimal string.
  * @throws If the number is not a non-negative safe integer.
  */
-export const numberToHexPrefixedString = (value: number): Hex => {
+export const numberToHexPrefixedString = (value: number, options?: HexOutputOptions): string => {
   assert(typeof value === "number", "Value must be a number.");
   assert(value >= 0, "Value must be a non-negative number.");
   assert(Number.isSafeInteger(value), "Value is not a safe integer. Use `bigIntToHex` instead.");
 
-  return add0x(value.toString(16));
+  const hex = value.toString(16);
+  return options?.prefixed === false ? hex : add0x(hex);
 };
 
 /**
@@ -35,23 +40,39 @@ export const numberToHexPrefixedString = (value: number): Hex => {
  *
  * @example
  * ```typescript
- * bigIntToHex(0n); // '0x0'
- * bigIntToHex(1n); // '0x1'
- * bigIntToHex(16n); // '0x10'
+ * bigIntToHexPrefixedString(16n); // '0x10'
+ * bigIntToHexPrefixedString(16n, { prefixed: false }); // '10'
  * ```
  * @param value - The `bigint` to convert to a hexadecimal string.
- * @returns The hexadecimal string, with the "0x"-prefix.
+ * @param options - Optional. Set `{ prefixed: false }` to omit the "0x" prefix.
+ * @returns The hexadecimal string.
  * @throws If the `bigint` is not a non-negative integer.
  */
-export const bigIntToHexPrefixedString = (value: bigint): Hex => {
+export const bigIntToHexPrefixedString = (value: bigint, options?: HexOutputOptions): string => {
   assert(typeof value === "bigint", "Value must be a bigint.");
   assert(value >= 0, "Value must be a non-negative bigint.");
 
-  return add0x(value.toString(16));
+  const hex = value.toString(16);
+  return options?.prefixed === false ? hex : add0x(hex);
 };
 
-export const bigIntToHexPaddedString = (value: bigint, length: number = 64): string => {
-  return value.toString(16).padStart(length, "0");
+/**
+ * Convert a `bigint` to a zero-padded hexadecimal string.
+ * By default returns without "0x" prefix (backward compatible).
+ *
+ * @example
+ * ```typescript
+ * bigIntToHexPaddedString(255n); // '00000...00ff' (64 chars, no prefix)
+ * bigIntToHexPaddedString(255n, 4, { prefixed: true }); // '0x00ff'
+ * ```
+ * @param value - The bigint to convert.
+ * @param length - Pad to this many hex characters (default 64).
+ * @param options - Optional. Set `{ prefixed: true }` to add "0x" prefix.
+ * @returns The padded hexadecimal string.
+ */
+export const bigIntToHexPaddedString = (value: bigint, length: number = 64, options?: HexOutputOptions): string => {
+  const hex = value.toString(16).padStart(length, "0");
+  return options?.prefixed ? add0x(hex) : hex;
 };
 
 /**

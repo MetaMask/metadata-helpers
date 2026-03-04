@@ -7,6 +7,16 @@ import { sha512 } from "@noble/hashes/sha2.js";
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import { bs58 } from "@toruslabs/bs58";
 
+import { add0x, remove0x } from "./hex";
+import type { HexOutputOptions } from "./number";
+
+/** Normalize any hex string (with or without 0x) to bigint. Empty → 0n. */
+function hexStringToBigInt(val: string): bigint {
+  const cleaned = remove0x(val);
+  if (!cleaned) return 0n;
+  return BigInt(`0x${cleaned}`);
+}
+
 export type AffinePoint = AffinePointCurve<bigint>;
 export type Curve = typeof secp256k1 | typeof ed25519;
 export type KeyType = "secp256k1" | "ed25519";
@@ -35,10 +45,16 @@ export function generatePrivateKey(ecCurveOrKeyType: Curve | KeyType): Uint8Arra
   return ec.utils.randomSecretKey();
 }
 
-/** Returns keccak256 hash as 0x-prefixed hex string. Use keccak256Bytes when you need raw bytes. */
-export function keccak256HexString(a: Uint8Array): string {
+/**
+ * Returns keccak256 hash as hex string. By default 0x-prefixed.
+ * Use keccak256Bytes when you need raw bytes.
+ *
+ * @param a - Input bytes.
+ * @param options - Optional. Set `{ prefixed: false }` to omit "0x" prefix.
+ */
+export function keccak256HexString(a: Uint8Array, options?: HexOutputOptions): string {
   const hash = bytesToHex(keccak_256(a));
-  return `0x${hash}`;
+  return options?.prefixed === false ? hash : `0x${hash}`;
 }
 
 /** Returns keccak256 hash as raw bytes. */
@@ -144,11 +160,18 @@ function toChecksumAddress(hexAddress: string): string {
   return ret;
 }
 
-/** Derive postbox key: privKey - nonce (mod n). */
-export function getPostboxKeyFrom1OutOf1(ecCurve: Curve, privKey: string, nonce: string): string {
-  const privKeyBI = typeof privKey === "string" ? BigInt(`0x${privKey.replace(/^0x/, "") || "0"}`) : privKey;
-  const nonceBI = typeof nonce === "string" ? BigInt(`0x${nonce.replace(/^0x/, "") || "0"}`) : nonce;
+/**
+ * Derive postbox key: privKey - nonce (mod n).
+ * Inputs accept hex with or without 0x prefix.
+ * By default returns raw hex (no prefix) for backward compat.
+ *
+ * @param options - Optional. Set `{ prefixed: true }` to add "0x" prefix.
+ */
+export function getPostboxKeyFrom1OutOf1(ecCurve: Curve, privKey: string, nonce: string, options?: HexOutputOptions): string {
+  const privKeyBI = hexStringToBigInt(privKey);
+  const nonceBI = hexStringToBigInt(nonce);
   const n = ecCurve.Point.CURVE().n;
   const result = mod(privKeyBI - nonceBI, n);
-  return result.toString(16).padStart(64, "0");
+  const hex = result.toString(16).padStart(64, "0");
+  return options?.prefixed ? add0x(hex) : hex;
 }
