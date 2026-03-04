@@ -28,7 +28,10 @@ export const numberToHexPrefixedString = (value: number, options?: HexOutputOpti
   assert(value >= 0, "Value must be a non-negative number.");
   assert(Number.isSafeInteger(value), "Value is not a safe integer. Use `bigIntToHex` instead.");
 
-  const hex = value.toString(16);
+  let hex = value.toString(16);
+  if (hex.length % 2 !== 0) {
+    hex = "0" + hex;
+  }
   return options?.prefixed === false ? hex : add0x(hex);
 };
 
@@ -52,7 +55,10 @@ export const bigIntToHexPrefixedString = (value: bigint, options?: HexOutputOpti
   assert(typeof value === "bigint", "Value must be a bigint.");
   assert(value >= 0, "Value must be a non-negative bigint.");
 
-  const hex = value.toString(16);
+  let hex = value.toString(16);
+  if (hex.length % 2 !== 0) {
+    hex = "0" + hex;
+  }
   return options?.prefixed === false ? hex : add0x(hex);
 };
 
