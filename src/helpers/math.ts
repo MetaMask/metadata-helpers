@@ -7,12 +7,12 @@ import stringify from "json-stable-stringify";
  */
 export const thresholdSame = <T>(arr: T[], t: number): T | undefined => {
   const hashMap: Record<string, number> = {};
-  for (let i = 0; i < arr.length; i += 1) {
-    const str = stringify(arr[i]);
-    hashMap[str] = hashMap[str] ? hashMap[str] + 1 : 1;
-    if (hashMap[str] === t) {
-      return arr[i];
-    }
+  for (const value of arr) {
+    const str = stringify(value);
+    if (str === undefined) continue;
+    const count = (hashMap[str] ?? 0) + 1;
+    hashMap[str] = count;
+    if (count === t) return value;
   }
   return undefined;
 };

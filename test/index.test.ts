@@ -1,6 +1,6 @@
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import { generatePrivate } from "@toruslabs/eccrypto";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { bytesToHexPrefixedString as bytesToHex } from "../src";
 import { utf8ToBytes } from "../src/helpers/bytes";
@@ -27,7 +27,9 @@ describe("Metadata", () => {
 
   it("should set and get", async () => {
     // Set metadata
-    randomMessage = JSON.stringify({ message: bytesToHex(keccak_256(utf8ToBytes(Date.now().toString()))) });
+    randomMessage = JSON.stringify({
+      message: bytesToHex(keccak_256(utf8ToBytes(Date.now().toString()))),
+    });
     const params = storage.generateMetadataParams(randomMessage, privKeyBytes);
     await storage.setMetadata(params, "metadata-test");
 
@@ -56,13 +58,15 @@ describe("Metadata", () => {
     const shares = ["fbShare", "twitterShare", "githubShare"];
 
     // Set shares for multiple subspaces
-    for (let i = 0; i < subspaces.length; i++) {
-      await setTorusShare(storage, { pub_key_X: pubKey2.x, pub_key_Y: pubKey2.y }, privKeyBytes, subspaces[i], shares[i]);
+    for (const [i, subspace] of subspaces.entries()) {
+      const share = shares[i];
+      if (share === undefined) throw new Error(`Missing share for ${subspace}`);
+      await setTorusShare(storage, { pub_key_X: pubKey2.x, pub_key_Y: pubKey2.y }, privKeyBytes, subspace, share);
     }
 
     // Get and verify shares for each subspace
-    for (let i = 0; i < subspaces.length; i++) {
-      const retrievedShare = await getTorusShare<string>(storage, privKeyBytes2, privKeyBytes, subspaces[i]);
+    for (const [i, subspace] of subspaces.entries()) {
+      const retrievedShare = await getTorusShare<string>(storage, privKeyBytes2, privKeyBytes, subspace);
       expect(retrievedShare).toBe(shares[i]);
     }
   });
@@ -92,12 +96,14 @@ describe("Metadata", () => {
     const subspaces = ["stringSpace", "numberSpace", "objectSpace"];
     const shares = ["testString", 42, { key: "value" }];
 
-    for (let i = 0; i < subspaces.length; i++) {
-      await setTorusShare(storage, { pub_key_X: pubKey2.x, pub_key_Y: pubKey2.y }, privKeyBytes, subspaces[i], shares[i]);
+    for (const [i, subspace] of subspaces.entries()) {
+      const share = shares[i];
+      if (share === undefined) throw new Error(`Missing share for ${subspace}`);
+      await setTorusShare(storage, { pub_key_X: pubKey2.x, pub_key_Y: pubKey2.y }, privKeyBytes, subspace, share);
     }
 
-    for (let i = 0; i < subspaces.length; i++) {
-      const retrievedShare = await getTorusShare(storage, privKeyBytes2, privKeyBytes, subspaces[i]);
+    for (const [i, subspace] of subspaces.entries()) {
+      const retrievedShare = await getTorusShare(storage, privKeyBytes2, privKeyBytes, subspace);
       expect(retrievedShare).toEqual(shares[i]);
     }
   });

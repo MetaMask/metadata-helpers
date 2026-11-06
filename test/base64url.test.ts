@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { bytesToBase64 } from "../src";
 import { decodeBase64Url, encodeBase64Url, fromBase64, toBase64, toBufferLike } from "../src/helpers/base64url";
