@@ -9,9 +9,11 @@ export { sha512 } from "@noble/hashes/sha2.js";
 export { keccak_256 } from "@noble/hashes/sha3.js";
 
 export function toEthereumSignature(recoveredSig: Uint8Array): Uint8Array {
+  const recovery = recoveredSig[0];
+  if (recovery === undefined) throw new Error("Recovered signature must include a recovery id");
   const ethSig = new Uint8Array(65);
   ethSig.set(recoveredSig.slice(1, 65), 0); // r + s
-  ethSig[64] = recoveredSig[0]; // v at end
+  ethSig[64] = recovery; // v at end
   return ethSig;
 }
 

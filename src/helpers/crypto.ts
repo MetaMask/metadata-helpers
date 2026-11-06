@@ -57,13 +57,17 @@ export function keccak256Bytes(a: Uint8Array): Uint8Array {
 }
 
 function adjustScalarBytes(bytes: Uint8Array): Uint8Array {
+  const first = bytes[0];
+  const last = bytes[31];
+  if (first === undefined || last === undefined) {
+    throw new Error("X25519 scalar must be 32 bytes");
+  }
   // Section 5: For X25519, in order to decode 32 random bytes as an integer scalar,
   // set the three least significant bits of the first byte
-  bytes[0] &= 248; // 0b1111_1000
+  bytes[0] = first & 248; // 0b1111_1000
   // and the most significant bit of the last to zero,
-  bytes[31] &= 127; // 0b0111_1111
   // set the second most significant bit of the last byte to 1
-  bytes[31] |= 64; // 0b0100_0000
+  bytes[31] = (last & 127) | 64; // 0b0100_0000
   return bytes;
 }
 

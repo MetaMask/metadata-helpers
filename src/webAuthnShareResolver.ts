@@ -113,6 +113,7 @@ export async function getTorusShare<T>(
 
 export async function getDeviceShare<T>(m: MetadataStorageLayer, webAuthnRefBytes: Uint8Array, subspace: string): Promise<T | null> {
   const data = await getAndDecryptData<T>(m, webAuthnRefBytes, WEBAUTHN_DEVICE_SHARE);
-  if (data) return data[subspace];
-  return null;
+  if (!data) return null;
+  const share = data[subspace];
+  return share === undefined ? null : share;
 }
