@@ -1,6 +1,6 @@
 # Metadata-helpers
 
-![Build Status](https://github.com/torusresearch/metadata-helpers/actions/workflows/master.yml/badge.svg)
+![Build Status](https://github.com/MetaMask/metadata-helpers/actions/workflows/ci.yml/badge.svg)
 
 [![npm downloads](https://img.shields.io/npm/dm/@toruslabs/metadata-helpers.svg?style=flat-square)](https://www.npmjs.com/package/@toruslabs/metadata-helpers)
 
@@ -63,5 +63,5 @@ or
 
 ## Requirements
 
-- This package requires a peer dependency of `@babel/runtime`
-- Node 22+
+- Node >=24.22.0
+- npm >=12

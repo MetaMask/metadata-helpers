@@ -43,7 +43,9 @@ export class MetadataStorageLayer {
       data: message,
       timestamp: Math.floor(this.serverTimeOffset + Date.now() / 1000).toString(16),
     };
-    const msgHash = keccak_256(utf8ToBytes(stringify(setData)));
+    const serialized = stringify(setData);
+    if (serialized === undefined) throw new Error("Failed to serialize metadata");
+    const msgHash = keccak_256(utf8ToBytes(serialized));
     const sigBytes = secp256k1.sign(msgHash, privateKeyBytes, { prehash: false, format: "recovered", lowS: false });
     return {
       pub_key_X: x,
