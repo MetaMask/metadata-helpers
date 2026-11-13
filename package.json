@@ -47,7 +47,7 @@
     "lint-staged": "^17.6.0",
     "playwright": "^1.65.0",
     "typescript": "^7.0.2",
-    "vite-plus": "1.5.0"
+    "vite-plus": "1.5.1"
   },
   "author": "Torus Labs",
   "license": "MIT",
